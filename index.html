@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Twitch Viewer</title>
+
+    <!-- Viewport mobile tag for sensible mobile support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!--STYLES-->
+    <link rel="stylesheet" href="styles/importer.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/normalize.css">
+    <link rel="stylesheet" href="styles/skeleton.css">
+    <!--STYLES END-->
+  </head>
+
+  <body>
+    <!-- nav -->
+        <div id="nav">
+          <div class="row">
+          <form>
+            <div id="games" class="game-search three columns offset-by-five input-field">
+              <input type="text" id="game_search" class="main-text">
+              <label for="game_search">Game</label>
+            </div>
+            <div id="streamerSearch" class="three columns input-field">
+              <input type="text" id="streamer_search" class="main-text">
+              <label for="streamer_search">Streamer</label>
+            </div>
+          </form>
+          <div id="search" class="one column attach-right"><i class="fa fa-search fa-2x fa-inverse"></i></div>
+          </div>
+          <div id="streams" class="noselect">
+            <div id="streams-container">
+                <div id="streams-left"><i class="fa fa-arrow-left fa-inverse fa-2x"></i></div>
+                <ul></ul>
+                <div id="streams-right"><i class="fa fa-arrow-right fa-inverse fa-2x"></i></div>
+            </div>
+          </div>
+        </div>
+    <!-- END nav -->
+
+    <!-- stream -->
+        <div id="currentStream">
+            <div class="stream-container hidden">
+                <div id="streamPlayer"></div>
+                <div id="streamChat"></div>
+            </div>
+            <div class="container">
+                <div class="info-container hidden">
+                    <div class="row">
+                        <div id="streamerName" class="five columns"></div>
+                        <div id="viewerCount" class="two columns offset-by-one"><i class="fa fa-user hidden"><span></span></i></div>
+                        <div id="viewsCount" class="two columns"><i class="fa fa-eye hidden"><span></span></i></div>
+                        <div id="followerCount" class="two columns"><i class="fa fa-heart hidden"><span></span></i></div>
+                    </div>
+                    <div id="title"></div>
+                </div>
+                </div>
+            </div>
+        </div>
+    <!-- END stream -->
+
+    <!--SCRIPTS-->
+    <script src="js/dependencies/sails.io.js"></script>
+    <script src="js/vendor/jquery-1.10.2.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/vendor/autocomplete.min.js"></script>
+    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    <!--SCRIPTS END-->
+  </body>
+</html>
