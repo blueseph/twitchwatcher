@@ -1,5 +1,39 @@
 $(document).ready(function() {
 
+	/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+					todo: organize this
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+																*/
+
 /* ==========================================================================
  	misc stuff
 	========================================================================== */
@@ -46,10 +80,22 @@ $(document).ready(function() {
 	/* =========== add favorite streamers ===========  */
 
 	var username
+	var timer
+	var typingTimeout = 1500
+	var usernameVal
 
-	$('#options-twitch-name').on('blur', function() {
-		username = $(this).val()
-		checkIfUserExists(username)
+	$('#options-twitch-name').on('keyup', function() {
+
+		/* only run if the streams bar is already visible. otherwise, have the general loading function load this afterwards */
+
+		if ( $('#streams').is(':visible') ) {
+			clearPreviousFavoriteStreams()
+			clearTimeout(timer)
+			usernameVal = $(this).val()
+			if (usernameVal) {
+				timer = setTimeout(pullUserAndFavorites, typingTimeout)
+			}
+		}
 	})
 
 	var validateUser = function(user) {
@@ -64,9 +110,16 @@ $(document).ready(function() {
 
 	}
 
-	var checkIfUserExists = function(user) {
+	var clearPreviousFavoriteStreams = function() {
+		$('.favorited').each(function(i, stream) {
+			stream.remove()
+		})
+	}
+
+	var pullUserAndFavorites = function() {
+
 		$.ajax({
-			url: 'https://api.twitch.tv/kraken/users/' + user,
+			url: 'https://api.twitch.tv/kraken/users/' + usernameVal,
 			type: 'GET',
 			dataType: 'jsonp',
 			crossDomain: true,
@@ -103,6 +156,9 @@ $(document).ready(function() {
 		var inserted = false
 
 		hasFavorites = ($('.favorited').length > 0 ? true : false)
+		$(view).imagesLoaded(function() {
+			$(stream).removeClass('hidden')
+		})
 
 		if (hasFavorites) {
 
@@ -126,15 +182,6 @@ $(document).ready(function() {
 		} else {
 			streamContainer.prepend(view)
 		}
-
-	}
-
-	var filterByPopularity = function() {
-
-		fav = $('.favorited')
-
-		first = $('.favorited').first()
-		last = $('')
 
 	}
 
@@ -341,6 +388,7 @@ $(document).ready(function() {
 		$('#streamerSearch').addClass('hidden')
 		$('#buttons').addClass('attach-right')
 		$('#options-open').addClass('hidden')
+		$('.xdsoft_autocomplete_hint').val('')
 	})
 
 	var populateStream = function(id) {
@@ -431,8 +479,9 @@ $(document).ready(function() {
 
 		var view = '<li class="streamer '+options+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
 
+
 		$(view).imagesLoaded(function () {
-			$(this).removeClass('hidden')
+			$(view).removeClass('hidden')
 		})
 
 		return view;
@@ -490,6 +539,9 @@ $(document).ready(function() {
 				visibleLimit: 3
 			})
 			loadAllStreams(data)
+			if (usernameVal) {
+				pullUserAndFavorites()
+			}
 			removeLoadingIcon()
 		})
 		.fail(function(data) {
