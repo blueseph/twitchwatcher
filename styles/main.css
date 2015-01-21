@@ -202,14 +202,26 @@ form label {
 
 #options-open {
 	position: absolute;
-	top: -280px;
+	top: -400px;
 	right: 5px;
 }
 
-#options-username  {
+#options-username, #options-disable-chat {
 	width: 350px;
 	padding: 25px;
 	background: #22313F;
+}
+
+#options-disable-chat {
+	margin-top: 10px;
+}
+
+#options-chat-box, #options-disable-chat label {
+	display: inline-block;
+}
+
+#options-disable-chat label {
+	margin-left: 25px;
 }
 
 #options-open label, #options-open #options-username-text {

@@ -52,7 +52,13 @@ $(document).ready(function() {
 
 
 /* ==========================================================================
+
+
+
  	options menu
+
+
+
 	========================================================================== */
 
 	/* =========== open/close options ===========  */
@@ -203,6 +209,27 @@ $(document).ready(function() {
 
 	}
 
+	/* =========== disable chat ===========  */
+
+	var disableChat = false
+
+	$('#options-chat-box').on('click', function() {
+
+		var streamIframe = $('#streamPlayer').find('iframe')
+		var containterWidth = $('.stream-container').width()
+
+		if (this.checked) {
+			$('#streamChat').addClass('hidden')
+			streamIframe.attr('width', containterWidth)
+			disableChat = true
+		} else {
+			$('#streamChat').removeClass('hidden')
+			var newWidth = containterWidth*.79 - 10 /* margin between chat and strean */
+			streamIframe.attr('width', newWidth)
+			disableChat = false
+		}
+	})
+
 
 /* ==========================================================================
  	search bars
@@ -247,7 +274,6 @@ $(document).ready(function() {
 		})
 
 	}
-
 
 	var updateFilter = function(filteredItem, dataType) {
 
@@ -370,6 +396,7 @@ $(document).ready(function() {
     var streamHeight = $(window).height()*.75
     var streamWidth = $(window).width()*.73
     var chatWidth = $(window).width()*.196
+    var streamContainterWidth
     var id
 	var viewerRefresh
 
@@ -411,17 +438,39 @@ $(document).ready(function() {
 	}
 
 	var updatePageForStreamer = function(streamer) {
-		$('.stream-container').removeClass('hidden')
-		$('.info-container').removeClass('hidden')
+
+		var chatHidden = false;
+
+		/*    show containters   */
+		$('.stream-container').removeClass('hidden');
+		$('.info-container').removeClass('hidden');
+
+		/* 	  set widths and heights for stream/chat    */
+
+		streamContainterWidth = $('.stream-container').width();
+		streamHeight = $(window).height()*.75;
+		streamWidth = streamContainterWidth*.79 - 7; /*margin between chat and stream */
+		chatWidth = streamContainterWidth*.20;
+
+		if (disableChat) {
+			streamWidth = streamContainterWidth
+		}
+
+		/*    populate all fields   */
 		$('#streamerName').append(streamer['display_name']);
 		$('#title').append(streamer['status'])
 		$('#streamPlayer').append('<iframe height="'+streamHeight+'" width="'+streamWidth+'" frameborder="0" scrolling="no" src="http://www.twitch.tv/'+id+'/embed"></iframe>')
 		$('#streamChat').append('<iframe frameborder="0" scrolling="no" id="chat_embed" src="http://twitch.tv/chat/embed?channel='+id+'&amp;popout_chat=true" height="'+streamHeight+'" width="'+chatWidth+'"></iframe>')
+		(disableChat) ? $('#streamChat').addClass('hidden') : $.noop
 		$('#viewsCount').find('span').append(streamer['views'])
 		$('#followerCount').find('span').append(streamer['followers'])
+
+		/*    show misc stream info   */
 		$('#viewerCount').find('i').removeClass('hidden')
 		$('#viewsCount').find('i').removeClass('hidden')
 		$('#followerCount').find('i').removeClass('hidden')
+
+		/*    update misc info   */
 		updateViewerCount()
 		viewerRefresh = setInterval(function() {
 			updateViewerCount()

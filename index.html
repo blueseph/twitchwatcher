@@ -17,65 +17,69 @@
   </head>
 
   <body>
-    <!-- nav -->
-        <div id="nav">
-          <div class="row">
-          <form>
-            <div id="games" class="game-search three columns offset-by-four input-field notvisible">
-              <input type="text" id="game_search" class="main-text">
-              <label for="game_search">Game</label>
-            </div>
-            <div id="streamerSearch" class="three columns input-field notvisible">
-              <input type="text" id="streamer_search" class="main-text">
-              <label for="streamer_search">Streamer</label>
-            </div>
-          </form>
-          <div id="buttons" class="two columns attach-right">
-            <div id="search">
-              <i class="fa fa-search fa-2x fa-inverse"></i>
-            </div>
-            <div id="options">
-              <i class="fa fa-cog fa-2x fa-inverse"></i>
-            </div>
+  <!-- nav -->
+      <div id="nav">
+        <div class="row noselect">
+        <form>
+          <div id="games" class="game-search three columns offset-by-four input-field notvisible">
+            <input type="text" id="game_search" class="main-text">
+            <label for="game_search">Game</label>
           </div>
-          <div id="options-open" class="hidden">
-            <div id="options-username">
-              <div id="options-username-text">Using your twitch username, we can add your favorite channels to our streamer list.</div>
-              <input type="text" id="options-twitch-name" class="main-text">
-              <label for="options-twitch-name">Username</label>
-            </div>
+          <div id="streamerSearch" class="three columns input-field notvisible">
+            <input type="text" id="streamer_search" class="main-text">
+            <label for="streamer_search">Streamer</label>
+          </div>
+        </form>
+        <div id="buttons" class="two columns attach-right">
+          <div id="search">
+            <i class="fa fa-search fa-2x fa-inverse"></i>
+          </div>
+          <div id="options">
+            <i class="fa fa-cog fa-2x fa-inverse"></i>
           </div>
         </div>
-        <div id="streams" class="noselect">
-          <div id="streams-container">
-              <div id="streams-left"><i class="fa fa-arrow-left fa-inverse fa-2x"></i></div>
-              <ul></ul>
-              <div id="streams-right"><i class="fa fa-arrow-right fa-inverse fa-2x"></i></div>
+        <div id="options-open" class="hidden">
+          <div id="options-username">
+            <div id="options-username-text">Using your twitch username, we can add your favorite channels to our streamer list.</div>
+            <input type="text" id="options-twitch-name" class="main-text">
+            <label for="options-twitch-name">Username</label>
+          </div>
+          <div id="options-disable-chat">
+            <input id="options-chat-box" type="checkbox">
+            <label for="options-chat-box">Disable Chat</label>
           </div>
         </div>
       </div>
-    <!-- END nav -->
-
-    <!-- stream -->
-        <div id="currentStream">
-            <div class="stream-container hidden">
-                <div id="streamPlayer"></div>
-                <div id="streamChat"></div>
-            </div>
-            <div class="container">
-                <div class="info-container hidden">
-                    <div class="row">
-                        <div id="streamerName" class="five columns"></div>
-                        <div id="viewerCount" class="two columns offset-by-one"><i class="fa fa-user hidden"><span></span></i></div>
-                        <div id="viewsCount" class="two columns"><i class="fa fa-eye hidden"><span></span></i></div>
-                        <div id="followerCount" class="two columns"><i class="fa fa-heart hidden"><span></span></i></div>
-                    </div>
-                    <div id="title"></div>
-                </div>
-                </div>
-            </div>
+      <div id="streams" class="noselect">
+        <div id="streams-container">
+            <div id="streams-left"><i class="fa fa-arrow-left fa-inverse fa-2x"></i></div>
+            <ul></ul>
+            <div id="streams-right"><i class="fa fa-arrow-right fa-inverse fa-2x"></i></div>
         </div>
-    <!-- END stream -->
+      </div>
+    </div>
+  <!-- END nav -->
+
+  <!-- stream -->
+      <div id="currentStream">
+          <div class="stream-container hidden">
+              <div id="streamPlayer"></div>
+              <div id="streamChat"></div>
+          </div>
+          <div class="container">
+            <div class="info-container hidden">
+              <div class="row">
+                <div id="streamerName" class="five columns"></div>
+                <div id="viewerCount" class="two columns offset-by-one"><i class="fa fa-user hidden"><span></span></i></div>
+                <div id="viewsCount" class="two columns"><i class="fa fa-eye hidden"><span></span></i></div>
+                <div id="followerCount" class="two columns"><i class="fa fa-heart hidden"><span></span></i></div>
+              </div>
+              <div id="title"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+  <!-- END stream -->
 
     <!--SCRIPTS-->
     <script src="js/dependencies/sails.io.js"></script>
