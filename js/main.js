@@ -1,41 +1,7 @@
 $(document).ready(function() {
 
-	/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					todo: organize this
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-																*/
-
 /* ==========================================================================
- 	misc stuff
+ 	stuff that needs to run asap
 	========================================================================== */
 
 	/* =========== matches hint bar to search bar ===========  */
@@ -53,15 +19,13 @@ $(document).ready(function() {
 
 /* ==========================================================================
 
-
-
  	options menu
-
-
 
 	========================================================================== */
 
 	/* =========== open/close options ===========  */
+	
+	var oo /* options open */
 
 	$('#options').on('click', function() {
 		oo = $('#options-open')
@@ -71,9 +35,9 @@ $(document).ready(function() {
 			oo.removeClass('hidden')
 		}
 	})
+/* =========== labels ===========  */
 
-	/* =========== labels ===========  */
-
+	/* makes labels pop up when active/vice versa */
 	$('options-open').on('focus', '.main-text', function() {
 		$(this).find('label').addClass('active')
 	})
@@ -83,17 +47,26 @@ $(document).ready(function() {
 	})
 
 
-	/* =========== add favorite streamers ===========  */
+	/* ==========================================================================
+ 		add favorite streamers
+	========================================================================== */
 
 	var username
 	var timer
-	var typingTimeout = 1500
+	var typingTimeout = 1500 /* in milliseconds */
 	var usernameVal
+	
+	/*** 
+	 * 
+	 * 
+	 * timeout -> pullUserAndFavortes -> processUser ->
+	 * getFavoriteStreamers
+	 *
+	 * 
+	 *													***/
 
 	$('#options-twitch-name').on('keyup', function() {
-
 		/* only run if the streams bar is already visible. otherwise, have the general loading function load this afterwards */
-
 		if ( $('#streams').is(':visible') ) {
 			clearPreviousFavoriteStreams()
 			clearTimeout(timer)
@@ -103,27 +76,11 @@ $(document).ready(function() {
 			}
 		}
 	})
-
-	var validateUser = function(user) {
-
-		return (user['error'] == 'Not Found');
-
-	}
-
-	var processUser = function(user) {
-
-		(validateUser(user)) ? $.noop() : getFavoriteStreamers(user);
-
-	}
-
-	var clearPreviousFavoriteStreams = function() {
-		$('.favorited').each(function(i, stream) {
-			stream.remove()
-		})
-	}
-
+	
+	
+	/* =========== ajax calls ===========  */
+	
 	var pullUserAndFavorites = function() {
-
 		$.ajax({
 			url: 'https://api.twitch.tv/kraken/users/' + usernameVal,
 			type: 'GET',
@@ -133,7 +90,6 @@ $(document).ready(function() {
 		.done(function(data) {
 			processUser(data);
 		})
-		
 	}
 
 	var getFavoriteStreamers = function(user) {
@@ -149,25 +105,61 @@ $(document).ready(function() {
 			})
 		})
 	}
+	
+	var determineIfStreamOnline = function(channel) {
+
+		var channelName = channel['channel']['name']
+
+		$.ajax({
+			url: 'https://api.twitch.tv/kraken/streams/'+channelName,
+			type: 'GET',
+			dataType: 'jsonp',
+			crossDomain: true,
+		})
+		.done(function(data) {
+			if (data['stream'] !== null) {
+				assignPlace(data['stream'])
+			}
+		})
+
+	}
+
+	/* =========== helper functions ===========  */
+
+	/* pullUserAndFavorites */
+	var validateUser = function(user) {
+		return (user['error'] == 'Not Found');
+	}
+
+	var processUser = function(user) {
+		(validateUser(user)) ? $.noop() : getFavoriteStreamers(user);
+	}
+	
+	/* =========== view functions ===========  */
+
+	var clearPreviousFavoriteStreams = function() {
+		$('.favorited').each(function(i, stream) {
+			stream.remove()
+		})
+	}
 
 
 	var assignPlace = function(streamObject) { 
-
 		/* sorts incoming streams by viewercount */
-
 		var view = streamView(streamObject, true)
  		var currentViewers = streamObject['viewers']
 		var streamContainer = $('#streams').find('ul')
 		var thisStreamViewers
 		var inserted = false
+		var hasFavorites;
+		var last;
 
 		hasFavorites = ($('.favorited').length > 0 ? true : false)
 		$(view).imagesLoaded(function() {
-			$(stream).removeClass('hidden')
+			$(view).removeClass('hidden');
 		})
 
 		if (hasFavorites) {
-
 			$('.favorited').each(function(i, stream) {
 				thisStreamViewers = $(stream).find('.viewercount').text()
 
@@ -188,33 +180,15 @@ $(document).ready(function() {
 		} else {
 			streamContainer.prepend(view)
 		}
-
 	}
 
-	var determineIfStreamOnline = function(channel) {
-
-		var channelName = channel['channel']['name']
-
-		$.ajax({
-			url: 'https://api.twitch.tv/kraken/streams/'+channelName,
-			type: 'GET',
-			dataType: 'jsonp',
-			crossDomain: true,
-		})
-		.done(function(data) {
-			if (data['stream'] !== null) {
-				assignPlace(data['stream'])
-			}
-		})
-
-	}
-
-	/* =========== disable chat ===========  */
-
+	/* ==========================================================================
+ 		disable chat
+	========================================================================== */
+	
 	var disableChat = false
 
 	$('#options-chat-box').on('click', function() {
-
 		var streamIframe = $('#streamPlayer').find('iframe')
 		var containterWidth = $('.stream-container').width()
 
@@ -232,15 +206,17 @@ $(document).ready(function() {
 
 
 /* ==========================================================================
+
  	search bars
+ 	
 	========================================================================== */
 
-	/* =========== general search bar ===========  */
 
+	/* =========== labels ===========  */
 
-   	$('.main-text').on('focus', function() {
+	/* makes labels pop up when active/vice versa */
+	$('.main-text').on('focus', function() {
    		$(this).parent().parent().find('label').addClass('active')
-
    	})
 
    	$('.main-text').on('blur', function() {
@@ -251,6 +227,7 @@ $(document).ready(function() {
 
 	/* =========== game search ===========  */
 
+	/* removes any hints in the search box on focus/blur*/
 	$('#game_search').on('focus', function() {
    		$('#game_hint').val('')
    	})
@@ -264,15 +241,10 @@ $(document).ready(function() {
  	filtering
 	========================================================================== */
 
-	/* =========== general functions ===========  */
-
 	var clearFilter = function() {
-
 		$('.streamer').each(function() { 
 			$(this).removeClass('hidden')
-
 		})
-
 	}
 
 	var updateFilter = function(filteredItem, dataType) {
@@ -315,55 +287,51 @@ $(document).ready(function() {
 	}
 
 	var applyFilter = function(parent, inputBox, dataType) {
+		
+		var currentGame;
 
 		if ($(parent).val() != '') {
-
 			currentGame = detectSelection(inputBox);
-				
 			updateFilter(currentGame, dataType);
-
 		} else {
-
 			clearFilter()
 		}
 
 	}
 
-	/* =========== games ===========  */
+	/* =========== application of filter ===========  */
 
+	/* todo: on click part of this doesn't work well. need a better way after
+	   to search after value changes */
+
+	/* games */
 	$('#game_search').on('keyup', function() {
-
 		applyFilter($(this), $('#games'), 'data-game')
-
 	})
 
 	$('#game_search').on('click', function() {
-
 		applyFilter($(this), $('#games'), 'data-game')
-
 	})
 
 
-	/* =========== general ===========  */
-
+	/* streamer  */
 	$('#streamer_search').on('keyup', function() {
-
 		applyFilter($(this), $('#streamerSearch'), 'data-name')
-
 	})
 
 	$('#streamer_search').on('click', function() {
-
 		applyFilter($(this), $('#streamerSearch'), 'data-name')
-
 	})
 
 
 /* ==========================================================================
+
  	hoverscroll
+
 	========================================================================== */
 
    	var interval
+   	var position;
 
    	$('#streams-left').on('mouseover', function() {
    		var streams = $('#streams');
@@ -388,9 +356,10 @@ $(document).ready(function() {
    	})
 
 
-
 /* ==========================================================================
+
    load stream
+
    ========================================================================== */
 
     var streamHeight = $(window).height()*.75
@@ -399,23 +368,47 @@ $(document).ready(function() {
     var streamContainterWidth
     var id
 	var viewerRefresh
+	var streamPreFill
+	var chatPreFill
+	
+	/* functions to reset nav */
+	
+	var hideNav = function() {
+		$('#streams').find('ul').empty()
+		$('#streams').hide()
+	}
+	
+	var clearSB = function() {
+		$('#games').find('label').removeClass('active')
+		$('#streamerSearch').find('label').removeClass('active')
+		$('#game_search').val('')
+		$('#streamer_search').val('')
+		$('.xdsoft_autocomplete_hint').val('')
+	}
+	
+	var hideSB = function() {
+		$('#games').addClass('hidden')
+		$('#streamerSearch').addClass('hidden')
+	}
+	
+	var reattachNavButtons = function() {
+		$('#buttons').addClass('attach-right')
+	}
+	
+	var resetNav = function() {
+		clearSB()
+		hideSB()
+		hideNav()
+		$('#buttons').addClass('attach-right')
+		$('#options-open').addClass('hidden')
+	}
 
-	//STREAMER CLICKED
+	/* =========== streamer clicked on ===========  */
 
 	$(document).on('click', '.streamer', function() {
 		id = $(this).attr('data-name');
 		populateStream(id)
-		$('#streams').find('ul').empty()
-		$('#streams').hide()
-		$('#game_search').val('')
-		$('#streamer_search').val('')
-		$('#games').find('label').removeClass('active')
-		$('#streamerSearch').find('label').removeClass('active')
-		$('#games').addClass('hidden')
-		$('#streamerSearch').addClass('hidden')
-		$('#buttons').addClass('attach-right')
-		$('#options-open').addClass('hidden')
-		$('.xdsoft_autocomplete_hint').val('')
+		resetNav()
 	})
 
 	var populateStream = function(id) {
@@ -438,9 +431,8 @@ $(document).ready(function() {
 	}
 
 	var updatePageForStreamer = function(streamer) {
-
 		var chatHidden = false;
-
+		
 		/*    show containters   */
 		$('.stream-container').removeClass('hidden');
 		$('.info-container').removeClass('hidden');
@@ -451,24 +443,28 @@ $(document).ready(function() {
 		streamHeight = $(window).height()*.75;
 		streamWidth = streamContainterWidth*.79 - 7; /*margin between chat and stream */
 		chatWidth = streamContainterWidth*.20;
-
+		
 		if (disableChat) {
-			streamWidth = streamContainterWidth
+			streamWidth = streamContainterWidth;
 		}
+		
+		/* twitch prebaked stuff */
+		chatPreFill = '<iframe frameborder="0" scrolling="no" id="chat_embed" src="http://twitch.tv/chat/embed?channel='+id+'&amp;popout_chat=true" height="'+streamHeight+'" width="'+chatWidth+'"></iframe>';
+		streamPreFill = '<iframe height="'+streamHeight+'" width="'+streamWidth+'" frameborder="0" scrolling="no" src="http://www.twitch.tv/'+id+'/embed"></iframe>';
 
 		/*    populate all fields   */
 		$('#streamerName').append(streamer['display_name']);
-		$('#title').append(streamer['status'])
-		$('#streamPlayer').append('<iframe height="'+streamHeight+'" width="'+streamWidth+'" frameborder="0" scrolling="no" src="http://www.twitch.tv/'+id+'/embed"></iframe>')
-		$('#streamChat').append('<iframe frameborder="0" scrolling="no" id="chat_embed" src="http://twitch.tv/chat/embed?channel='+id+'&amp;popout_chat=true" height="'+streamHeight+'" width="'+chatWidth+'"></iframe>')
-		(disableChat) ? $('#streamChat').addClass('hidden') : $.noop
-		$('#viewsCount').find('span').append(streamer['views'])
-		$('#followerCount').find('span').append(streamer['followers'])
+		$('#title').append(streamer['status']);
+		$('#streamPlayer').append(streamPreFill);
+		$('#streamChat').append(chatPreFill);
+		(disableChat) ? $('#streamChat').addClass('hidden') : $.noop;
+		$('#viewsCount').find('span').append(streamer['views']);
+		$('#followerCount').find('span').append(streamer['followers']);
 
 		/*    show misc stream info   */
-		$('#viewerCount').find('i').removeClass('hidden')
-		$('#viewsCount').find('i').removeClass('hidden')
-		$('#followerCount').find('i').removeClass('hidden')
+		$('#viewerCount').find('i').removeClass('hidden');
+		$('#viewsCount').find('i').removeClass('hidden');
+		$('#followerCount').find('i').removeClass('hidden');
 
 		/*    update misc info   */
 		updateViewerCount()
@@ -512,6 +508,8 @@ $(document).ready(function() {
 
 	/* =========== stream view ===========  */
 
+	/* todo: this needs to be made more robust */
+	
 	var streamView = function(stream, favorited) { //needs stream object
 
 		var options = (favorited ? "favorited" : "hidden")
@@ -547,13 +545,7 @@ $(document).ready(function() {
 	$('#search').on('click', function() {
 		var streams = $('#streams')
 		if (streams.is(':visible')) {
-			streams.find('ul').empty()
-			streams.hide()
-			$('#streams-left').removeClass('fixed')
-			$('#streams-left').removeClass('fixed')
-			$('#games').addClass('hidden')
-			$('#streamerSearch').addClass('hidden')
-			$('#buttons').addClass('attach-right')
+			resetNav()
 		} else {
 			getStreams();
 			getGames();
@@ -567,6 +559,10 @@ $(document).ready(function() {
 	})
 	
 	/* =========== populate popular streams ===========  */
+	
+	var streamerAutoFill
+	var view
+	var autofill
 
 	var getStreams = function() {
 
