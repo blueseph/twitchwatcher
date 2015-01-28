@@ -241,10 +241,14 @@ $(document).ready(function() {
  	filtering
 	========================================================================== */
 
+	var filtered;
+
 	var clearFilter = function() {
 		$('.streamer').each(function() { 
 			$(this).removeClass('hidden')
 		})
+		
+		filtered = false;
 	}
 
 	var updateFilter = function(filteredItem, dataType) {
@@ -293,6 +297,7 @@ $(document).ready(function() {
 		if ($(parent).val() != '') {
 			currentGame = detectSelection(inputBox);
 			updateFilter(currentGame, dataType);
+			filtered = true;
 		} else {
 			clearFilter()
 		}
@@ -512,7 +517,8 @@ $(document).ready(function() {
 	
 	var streamView = function(stream, favorited) { //needs stream object
 
-		var options = (favorited ? "favorited" : "hidden")
+		var favorited = (favorited) ? "favorited" : "";
+		var options = (filtered) ? "hidden" :  "";
 
 		var preview_height = 125
 		var aspect_ratio = 1.777 // twitch aspect ratio
@@ -524,7 +530,7 @@ $(document).ready(function() {
 		var preview = '<div class="preview"><img src=' + preview_image +'></img>'+viewerbar+'</div>'
 		var game = '<div class="game">' + stream['game'] + '</div>'
 
-		var view = '<li class="streamer '+options+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
+		var view = '<li class="streamer '+options+' '+favorited+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
 
 
 		$(view).imagesLoaded(function () {
