@@ -6,15 +6,15 @@ $(document).ready(function() {
 
 	/* =========== matches hint bar to search bar ===========  */
 
-	$('#game_hint').css("height", $('#game_search').outerHeight())
-	$('#game_hint').css("width", $('#game_search').outerWidth())
-	$('#games').removeClass('notvisible')
-	$('#games').addClass('hidden')
+	$('#game_hint').css("height", $('#game_search').outerHeight());
+	$('#game_hint').css("width", $('#game_search').outerWidth());
+	$('#games').removeClass('notvisible');
+	$('#games').addClass('hidden');
 
-	$('#streamer_hint').css("height", $('#streamer_search').outerHeight())
-	$('#streamer_hint').css("width", $('#streamer_search').outerWidth())
-	$('#streamerSearch').removeClass('notvisible')
-	$('#streamerSearch').addClass('hidden')
+	$('#streamer_hint').css("height", $('#streamer_search').outerHeight());
+	$('#streamer_hint').css("width", $('#streamer_search').outerWidth());
+	$('#streamerSearch').removeClass('notvisible');
+	$('#streamerSearch').addClass('hidden');
 
 
 /* ==========================================================================
@@ -25,36 +25,35 @@ $(document).ready(function() {
 
 	/* =========== open/close options ===========  */
 	
-	var oo /* options open */
+	var oo; /* options open */
 
 	$('#options').on('click', function() {
-		oo = $('#options-open')
+		oo = $('#options-open');
 		if (oo.is(':visible')) {
-			oo.addClass('hidden')
+			oo.addClass('hidden');
 		} else {
-			oo.removeClass('hidden')
+			oo.removeClass('hidden');
 		}
-	})
+	});
 /* =========== labels ===========  */
 
 	/* makes labels pop up when active/vice versa */
 	$('options-open').on('focus', '.main-text', function() {
-		$(this).find('label').addClass('active')
-	})
+		$(this).find('label').addClass('active');
+	});
 
 	$('options-open').on('blur', '.main-text', function() {
-		$(this).find('label').removeClass('active')
-	})
+		$(this).find('label').removeClass('active');
+	});
 
 
 	/* ==========================================================================
  		add favorite streamers
 	========================================================================== */
 
-	var username
-	var timer
-	var typingTimeout = 1500 /* in milliseconds */
-	var usernameVal
+	var timer;
+	var typingTimeout = 1500; /* in milliseconds */
+	var usernameVal;
 	
 	/*** 
 	 * 
@@ -68,14 +67,14 @@ $(document).ready(function() {
 	$('#options-twitch-name').on('keyup', function() {
 		/* only run if the streams bar is already visible. otherwise, have the general loading function load this afterwards */
 		if ( $('#streams').is(':visible') ) {
-			clearPreviousFavoriteStreams()
-			clearTimeout(timer)
-			usernameVal = $(this).val()
+			clearPreviousFavoriteStreams();
+			clearTimeout(timer);
+			usernameVal = $(this).val();
 			if (usernameVal) {
-				timer = setTimeout(pullUserAndFavorites, typingTimeout)
+				timer = setTimeout(pullUserAndFavorites, typingTimeout);
 			}
 		}
-	})
+	});
 	
 	
 	/* =========== ajax calls ===========  */
@@ -89,8 +88,8 @@ $(document).ready(function() {
 		})
 		.done(function(data) {
 			processUser(data);
-		})
-	}
+		});
+	};
 
 	var getFavoriteStreamers = function(user) {
 		$.ajax({
@@ -101,14 +100,14 @@ $(document).ready(function() {
 		})
 		.done(function(data) {
 			$.each(data['follows'], function(i, channel) {
-				determineIfStreamOnline(channel)
-			})
-		})
-	}
+				determineIfStreamOnline(channel);
+			});
+		});
+	};
 	
 	var determineIfStreamOnline = function(channel) {
 
-		var channelName = channel['channel']['name']
+		var channelName = channel['channel']['name'];
 
 		$.ajax({
 			url: 'https://api.twitch.tv/kraken/streams/'+channelName,
@@ -118,91 +117,90 @@ $(document).ready(function() {
 		})
 		.done(function(data) {
 			if (data['stream'] !== null) {
-				assignPlace(data['stream'])
+				assignPlace(data['stream']);
 			}
-		})
-
-	}
+		});
+	};
 
 	/* =========== helper functions ===========  */
 
 	/* pullUserAndFavorites */
 	var validateUser = function(user) {
 		return (user['error'] == 'Not Found');
-	}
+	};
 
 	var processUser = function(user) {
 		(validateUser(user)) ? $.noop() : getFavoriteStreamers(user);
-	}
+	};
 	
 	/* =========== view functions ===========  */
 
 	var clearPreviousFavoriteStreams = function() {
 		$('.favorited').each(function(i, stream) {
-			stream.remove()
-		})
-	}
+			stream.remove();
+		});
+	};
 
 
 	var assignPlace = function(streamObject) { 
 		/* sorts incoming streams by viewercount */
-		var view = streamView(streamObject, true, globalFilter)
- 		var currentViewers = streamObject['viewers']
-		var streamContainer = $('#streams').find('ul')
-		var thisStreamViewers
-		var inserted = false
+		var view = streamView(streamObject, true, globalFilter);
+ 		var currentViewers = streamObject['viewers'];
+		var streamContainer = $('#streams').find('ul');
+		var thisStreamViewers;
+		var inserted = false;
 		var hasFavorites;
 		var last;
 
-		hasFavorites = ($('.favorited').length > 0 ? true : false)
+		hasFavorites = ($('.favorited').length > 0 ? true : false);
 		$(view).imagesLoaded(function() {
 			$(view).removeClass('hidden');
-		})
+		});
 
 		if (hasFavorites) {
 			$('.favorited').each(function(i, stream) {
-				thisStreamViewers = $(stream).find('.viewercount').text()
+				thisStreamViewers = $(stream).find('.viewercount').text();
 
 				if (!inserted) {
 					if (currentViewers > thisStreamViewers) {
-						$(stream).before(view)
-						inserted = true
+						$(stream).before(view);
+						inserted = true;
 					}
 				}
-			})
+			});
 
 			/* only happens if the stream has the lowest number of viewers out of all .favorited streams */
 			if (!inserted) { 
-				last = $('.favorited').last()
-				last.after(view)
+				last = $('.favorited').last();
+				last.after(view);
 			}
 
 		} else {
-			streamContainer.prepend(view)
+			streamContainer.prepend(view);
 		}
-	}
+	};
 
 	/* ==========================================================================
  		disable chat
 	========================================================================== */
 	
-	var disableChat = false
+	var disableChat = false;
 
 	$('#options-chat-box').on('click', function() {
-		var streamIframe = $('#streamPlayer').find('iframe')
-		var containterWidth = $('.stream-container').width()
+		var streamIframe = $('#streamPlayer').find('iframe');
+		var containterWidth = $('.stream-container').width();
 
 		if (this.checked) {
-			$('#streamChat').addClass('hidden')
-			streamIframe.attr('width', containterWidth)
-			disableChat = true
+			$('#streamChat').addClass('hidden');
+			streamIframe.attr('width', containterWidth);
+			disableChat = true;
 		} else {
-			$('#streamChat').removeClass('hidden')
-			var newWidth = containterWidth*.79 - 10 /* margin between chat and strean */
-			streamIframe.attr('width', newWidth)
-			disableChat = false
+			$('#streamChat').removeClass('hidden');
+			var newWidth = containterWidth*.79 - 10; /* margin between chat and strean */
+			streamIframe.attr('width', newWidth);
+			disableChat = false;
 		}
-	})
+	});
 
 
 /* ==========================================================================
@@ -216,25 +214,29 @@ $(document).ready(function() {
 
 	/* makes labels pop up when active/vice versa */
 	$('.main-text').on('focus', function() {
-   		$(this).parent().parent().find('label').addClass('active')
-   	})
+   		$(this)
+   		.parent()
+   		.parent()
+   		.find('label')
+   		.addClass('active');
+   	});
 
    	$('.main-text').on('blur', function() {
    		if ($(this).val() == '') {
-   			$(this).parent().parent().find('label').removeClass('active')
+   			$(this).parent().parent().find('label').removeClass('active');
    		}
-   	})
+   	});
 
 	/* =========== game search ===========  */
 
 	/* removes any hints in the search box on focus/blur*/
 	$('#game_search').on('focus', function() {
-   		$('#game_hint').val('')
-   	})
+   		$('#game_hint').val('');
+   	});
 
 	$('#game_search').on('blur', function() {
-   		$('#game_hint').val('')
-   	})
+   		$('#game_hint').val('');
+   	});
 
 
 /* ==========================================================================
@@ -253,7 +255,7 @@ $(document).ready(function() {
 			this.streamer = null;
 			this.activeOn = null;
 		}
-	}	
+	};	
 	
 	var getMoreOfGame = function(game) {
 		$.ajax({
@@ -264,17 +266,17 @@ $(document).ready(function() {
 		})
 		.done(function(data) {
 			showStreams(data, globalFilter);
-		})
-	}
+		});
+	};
 
 	var clearFilter = function() {
 		
 		$('.streamer').each(function() { 
-			$(this).removeClass('hidden')
-		})
+			$(this).removeClass('hidden');
+		});
 		
 		globalFilter.clear();
-	}
+	};
 
 	var updateFilter = function(filteredItem, dataType) {
 
@@ -283,37 +285,36 @@ $(document).ready(function() {
 			/* filter for game UNLESS filteredItem is empty (means there's no game being searched for) */
 			
 			if ($(this).attr(dataType) != filteredItem && filteredItem != '') { 
-				$(this).addClass('hidden')
+				$(this).addClass('hidden');
 			} else {
-				$(this).removeClass('hidden')
+				$(this).removeClass('hidden');
 			}
-		})
-
-	}
+		});
+	};
 
 	var detectSelection = function(parent) {
 
-		var defaultSelection
-		var overrideSelection
-		var currentSelection
+		var defaultSelection;
+		var overrideSelection;
+		var currentSelection;
 
 		defaultSelection = $(parent)
 							.find('.xdsoft_autocomplete_dropdown')
 							.children()
 							.first()
-							.attr('data-value')
-
+							.attr('data-value');
 
 		overrideSelection = $(parent)
 							.find('.xdsoft_autocomplete_dropdown')
 							.find('.active')
-							.attr('data-value')
+							.attr('data-value');
 
-		currentSelection = (typeof overrideSelection === 'undefined' ? defaultSelection : overrideSelection)
+		currentSelection = (typeof overrideSelection === 'undefined' ? 
+							defaultSelection : overrideSelection);
 
-		return currentSelection
+		return currentSelection;
 
-	}
+	};
 	
 	var lastGame;
 
@@ -329,14 +330,13 @@ $(document).ready(function() {
 				getMoreOfGame(currentGame);
 			}
 			globalFilter.active = true;
-			globalFilter.game = currentGame
+			globalFilter.game = currentGame;
 			globalFilter.activeOn = 'game';
 			lastGame = currentGame;
 		} else {
-			clearFilter()
+			clearFilter();
 		}
-
-	}
+	};
 
 	/* =========== application of filter ===========  */
 
@@ -345,23 +345,22 @@ $(document).ready(function() {
 
 	/* games */
 	$('#game_search').on('keyup', function() {
-		applyFilter($(this), $('#games'), 'data-game')
-
-	})
+		applyFilter($(this), $('#games'), 'data-game');
+	});
 
 	$('#game_search').on('click', function() {
-		applyFilter($(this), $('#games'), 'data-game')
-	})
+		applyFilter($(this), $('#games'), 'data-game');
+	});
 
 
 	/* streamer  */
 	$('#streamer_search').on('keyup', function() {
-		applyFilter($(this), $('#streamerSearch'), 'data-name')
-	})
+		applyFilter($(this), $('#streamerSearch'), 'data-name');
+	});
 
 	$('#streamer_search').on('click', function() {
-		applyFilter($(this), $('#streamerSearch'), 'data-name')
-	})
+		applyFilter($(this), $('#streamerSearch'), 'data-name');
+	});
 
 
 /* ==========================================================================
@@ -370,7 +369,7 @@ $(document).ready(function() {
 
 	========================================================================== */
 
-   	var interval
+   	var interval;
    	var position;
 
    	$('#streams-left').on('mouseover', function() {
@@ -381,8 +380,8 @@ $(document).ready(function() {
    			streams.scrollLeft(position - 2.5);
    		}, 5);
    	}).on('mouseout', function() {
-   		clearInterval(interval)
-   	})
+   		clearInterval(interval);
+   	});
 
    	$('#streams-right').on('mouseover', function() {
    		var streams = $('#streams');
@@ -392,8 +391,8 @@ $(document).ready(function() {
    			streams.scrollLeft(position + 2.5);
    		}, 5);
    	}).on('mouseout', function() {
-   		clearInterval(interval)
-   	})
+   		clearInterval(interval);
+   	});
 
 
 /* ==========================================================================
@@ -402,46 +401,47 @@ $(document).ready(function() {
 
    ========================================================================== */
 
-    var streamHeight = $(window).height()*.75
-    var streamWidth = $(window).width()*.73
-    var chatWidth = $(window).width()*.196
-    var streamContainterWidth
-    var id
-	var viewerRefresh
-	var streamPreFill
-	var chatPreFill
+    var streamHeight = $(window).height()*.75;
+    var streamWidth = $(window).width()*.73;
+    var chatWidth = $(window).width()*.196;
+    var streamContainterWidth;
+    var id;
+	var viewerRefresh;
+	var streamPreFill;
+	var chatPreFill;
 	
 	/* functions to reset nav */
 	
 	var hideNav = function() {
-		$('#streams').find('ul').empty()
-		$('#streams').hide()
-	}
+		$('#streams').find('ul').empty();
+		$('#streams').hide();
+	};
 	
 	var clearSB = function() {
-		$('#games').find('label').removeClass('active')
-		$('#streamerSearch').find('label').removeClass('active')
-		$('#game_search').val('')
-		$('#streamer_search').val('')
-		$('.xdsoft_autocomplete_hint').val('')
-	}
+		$('#games').find('label').removeClass('active');
+		$('#streamerSearch').find('label').removeClass('active');
+		$('#game_search').val('');
+		$('#streamer_search').val('');
+		$('.xdsoft_autocomplete_hint').val('');
+	};
 	
 	var hideSB = function() {
-		$('#games').addClass('hidden')
-		$('#streamerSearch').addClass('hidden')
-	}
+		$('#games').addClass('hidden');
+		$('#streamerSearch').addClass('hidden');
+	};
 	
 	var reattachNavButtons = function() {
-		$('#buttons').addClass('attach-right')
-	}
+		$('#buttons').addClass('attach-right');
+	};
 	
 	var resetNav = function() {
-		clearSB()
-		hideSB()
-		hideNav()
-		$('#buttons').addClass('attach-right')
-		$('#options-open').addClass('hidden')
-	}
+		clearSB();
+		hideSB();
+		hideNav();
+		reattachNavButtons();
+		$('#buttons').addClass('attach-right');
+		$('#options-open').addClass('hidden');
+	};
 
 	/* =========== streamer clicked on ===========  */
 
@@ -449,7 +449,7 @@ $(document).ready(function() {
 		id = $(this).attr('data-name');
 		populateStream(id);
 		resetNav();
-	})
+	});
 
 	var populateStream = function(id) {
 		emptyPage();
@@ -468,10 +468,9 @@ $(document).ready(function() {
 		.always(function() {
 			console.log("complete");
 		});
-	}
+	};
 
 	var updatePageForStreamer = function(streamer) {
-		var chatHidden = false;
 		
 		/*    show containters   */
 		$('.stream-container').removeClass('hidden');
@@ -507,11 +506,11 @@ $(document).ready(function() {
 		$('#followerCount').find('i').removeClass('hidden');
 
 		/*    update misc info   */
-		updateViewerCount()
+		updateViewerCount();
 		viewerRefresh = setInterval(function() {
-			updateViewerCount()
-		}, 18000)
-	}
+			updateViewerCount();
+		}, 18000);
+	};
 
 	var updateViewerCount = function() {
 		$.ajax({
@@ -521,25 +520,25 @@ $(document).ready(function() {
 			crossDomain: true,
 		})
 		.done(function(data) {
-			updatePageWithViewers(data)
-		})
-	}
+			updatePageWithViewers(data);
+		});
+	};
 
 	var updatePageWithViewers = function(stream) {
-		$('#viewerCount').find('span').empty()
-		$('#viewerCount').find('span').append(stream['stream']['viewers'])
-	}
+		$('#viewerCount').find('span').empty();
+		$('#viewerCount').find('span').append(stream['stream']['viewers']);
+	};
 
 	var emptyPage = function() {
-		$('#streamerName').empty()
-		$('#title').empty()
-		$('#streamPlayer').empty()
-		$('#streamChat').empty()
-		$('#viewerCount').find('span').empty()
-		$('#viewsCount').find('span').empty()
-		$('#followerCount').find('span').empty()
-		clearInterval(viewerRefresh)
-	}
+		$('#streamerName').empty();
+		$('#title').empty();
+		$('#streamPlayer').empty();
+		$('#streamChat').empty();
+		$('#viewerCount').find('span').empty();
+		$('#viewsCount').find('span').empty();
+		$('#followerCount').find('span').empty();
+		clearInterval(viewerRefresh);
+	};
 
 
 /* ==========================================================================
@@ -564,66 +563,65 @@ $(document).ready(function() {
 		} else {
 			return 'hidden';
 		}
-		
-	}
+	};
 	
 	var streamView = function(stream, favorited, filter) { 
 
-		var favorited = (favorited) ? "favorited" : "";
-		var options = determineIfFiltered(stream, filter)
+		var isFavorited = (favorited) ? "favorited" : "";
+		var options = determineIfFiltered(stream, filter);
 		
-		var preview_height = 125
-		var aspect_ratio = 1.777 // twitch aspect ratio
-		var preview_image = templateReplace(stream['preview']['template'], preview_height, aspect_ratio)
+		var preview_height = 125;
+		var aspect_ratio = 1.777; /* twitch's aspect ratio for preview pictures */  
+		var preview_image = templateReplace(stream['preview']['template'], preview_height, aspect_ratio);
 
-		var name = '<div class="name">' + stream['channel']['display_name'] + '</div>'
-		var status = '<div class="status">' + stream['channel']['status'] + '</div>'
-		var viewerbar = '<div class="viewerbar"><i class="fa fa-user"><span class="viewercount">'+ stream['viewers'] +'</span></i></div>'
-		var preview = '<div class="preview"><img src=' + preview_image +'></img>'+viewerbar+'</div>'
-		var game = '<div class="game">' + stream['game'] + '</div>'
+		var name = '<div class="name">' + stream['channel']['display_name'] + '</div>';
+		var status = '<div class="status">' + stream['channel']['status'] + '</div>';
+		var viewerbar = '<div class="viewerbar"><i class="fa fa-user"><span class="viewercount">'+ stream['viewers'] +'</span></i></div>';
+		var preview = '<div class="preview"><img src=' + preview_image +'></img>'+viewerbar+'</div>';
+		var game = '<div class="game">' + stream['game'] + '</div>';
 
-		var view = '<li class="streamer '+options+' '+favorited+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
+		var view = '<li class="streamer '+options+' '+isFavorited+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
 
 		$(view).imagesLoaded(function () {
-			$(view).removeClass('hidden')
-		})
+			$(view).removeClass('hidden');
+		});
 
 		return view;
-	}
+	};
 
 	var templateReplace = function(template, height, aspect_ratio) {
-		template = template.replace('{height}', height)
-		template = template.replace('{width}', Math.floor(height*aspect_ratio)) 
-		return template
-	}
+		template = template.replace('{height}', height);
+		template = template.replace('{width}', Math.floor(height*aspect_ratio)); 
+		return template;
+	};
 
 	/* =========== stream bar open ===========  */
 
 	$('#search').on('click', function() {
-		var streams = $('#streams')
+		var streams = $('#streams');
 		if (streams.is(':visible')) {
-			resetNav()
+			resetNav();
 		} else {
 			getStreams();
 			getGames();
-			$('#streams-left').addClass('fixed')
-			$('#streams-right').addClass('fixed')
-			$('#games').removeClass('hidden')
-			$('#streamerSearch').removeClass('hidden')
-			$('#buttons').removeClass('attach-right')
-			streams.show()
+			$('#streams-left').addClass('fixed');
+			$('#streams-right').addClass('fixed');
+			$('#games').removeClass('hidden');
+			$('#streamerSearch').removeClass('hidden');
+			$('#buttons').removeClass('attach-right');
+			streams.show();
 		}
-	})
+	});
 	
 	/* =========== populate popular streams ===========  */
 	
-	var streamerAutoFill
-	var view
-	var autofill
+	var streamerAutoFill;
+	var view;
+	var autofill;
 
 	var getStreams = function() {
 
-		addLoadingIcon()
+		addLoadingIcon();
 
 		$.ajax({
 			url: 'https://api.twitch.tv/kraken/streams?limit=100',
@@ -632,55 +630,54 @@ $(document).ready(function() {
 			dataType: 'jsonp',
 		})
 		.done(function(data) {
-			streamerAutoFill = streamerNameFill(data)
+			streamerAutoFill = streamerNameFill(data);
 			$('#streamer_search').autocomplete({
 				source: [streamerAutoFill],
 				highlight: true,
 				autoselect: true,
 				limit: 3,
 				visibleLimit: 3
-			})
-			loadAllStreams(data)
+			});
+			loadAllStreams(data);
 			if (usernameVal) {
-				pullUserAndFavorites()
+				pullUserAndFavorites();
 			}
-			removeLoadingIcon()
+			removeLoadingIcon();
 		})
 		.fail(function(data) {
 			console.log(data);
-		})
-
-	}
+		});
+	};
 
 	var streamerNameFill = function(streams) {
-		var autofill = []
+		var autofill = [];
 
 		$.each(streams['streams'], function(i, stream) {
-			autofill.push(stream['channel']['name'])
-		})
+			autofill.push(stream['channel']['name']);
+		});
 
-		return autofill
-	}
+		return autofill;
+	};
 
 	// loading bar and misc stuff
 	
 
 	var loadAllStreams = function(streams) {
 		$('#loading').fadeOut(200, function() {
-			showStreams(streams, globalFilter)
+			showStreams(streams, globalFilter);
 			$('.streamer').each(function(i, stream) {
 				$(stream).imagesLoaded(function() {
-					$(stream).removeClass('hidden')
-				})
-			})
-		})
-	}
+					$(stream).removeClass('hidden');
+				});
+			});
+		});
+	};
 
 	var addLoadingIcon = function() {
-		$('#streams').append('<div id="loading"></div>')
-		$('#loading').append('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-inverse"></i><br>')
-		$('#loading').append('<span>Loading..</span>')
-	}
+		$('#streams').append('<div id="loading"></div>');
+		$('#loading').append('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-inverse"></i><br>');
+		$('#loading').append('<span>Loading..</span>');
+	};
 
 	var removeLoadingIcon = function() {
 		$('#loading').remove();
@@ -719,29 +716,29 @@ $(document).ready(function() {
 			dataType: 'jsonp',
 		})
 		.done(function(data) {
-			autofill =  fillAutofill(data)
+			autofill =  fillAutofill(data);
 			$('#game_search').autocomplete({
 				source: [autofill],
 				highlight: true,
 				autoselect: true,
 				limit: 3,
 				visibleLimit: 3
-			})
+			});
 		})
 		.fail(function(data) {
 			console.log(data);
-		})
-	}
+		});
+	};
 
 	var fillAutofill = function(games) {
-		var autofill = []
+		var autofill = [];
 
 		$.each(games['top'], function(i, game) {
-			autofill.push(game['game']['name'])
-		})
+			autofill.push(game['game']['name']);
+		});
 
-		return autofill
-	}
+		return autofill;
+	};
 
 	/* ==========================================================================
  	pre query
