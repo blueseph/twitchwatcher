@@ -146,7 +146,7 @@ $(document).ready(function() {
 
 	var assignPlace = function(streamObject) { 
 		/* sorts incoming streams by viewercount */
-		var view = streamView(streamObject, true)
+		var view = streamView(streamObject, true, filter)
  		var currentViewers = streamObject['viewers']
 		var streamContainer = $('#streams').find('ul')
 		var thisStreamViewers
@@ -241,22 +241,47 @@ $(document).ready(function() {
  	filtering
 	========================================================================== */
 
-	var filtered;
+	var globalFilter = {
+		active: false,
+		game: null,
+		streamer: null,
+		activeOn: null,
+		
+		clear: function() {
+			this.active = false;
+			this.game = null;
+			this.streamer = null;
+			this.activeOn = null;
+		}
+	}	
+	
+	var getMoreOfGame = function(game) {
+		$.ajax({
+			url: 'https://api.twitch.tv/kraken/search/streams?q=' + game +'&limit=100',
+			type: 'GET',
+			dataType: 'jsonp',
+			crossDomain: true,
+		})
+		.done(function(data) {
+			showStreams(data, globalFilter);
+		})
+	}
 
 	var clearFilter = function() {
+		
 		$('.streamer').each(function() { 
 			$(this).removeClass('hidden')
 		})
 		
-		filtered = false;
+		globalFilter.clear();
 	}
 
 	var updateFilter = function(filteredItem, dataType) {
 
-		filteredItem = unescape(filteredItem)
-
 		$('.streamer').each(function() { 
+			
 			/* filter for game UNLESS filteredItem is empty (means there's no game being searched for) */
+			
 			if ($(this).attr(dataType) != filteredItem && filteredItem != '') { 
 				$(this).addClass('hidden')
 			} else {
@@ -289,15 +314,24 @@ $(document).ready(function() {
 		return currentSelection
 
 	}
+	
+	var lastGame;
 
 	var applyFilter = function(parent, inputBox, dataType) {
-		
+
 		var currentGame;
 
 		if ($(parent).val() != '') {
 			currentGame = detectSelection(inputBox);
+			currentGame = decodeURIComponent(currentGame);
 			updateFilter(currentGame, dataType);
-			filtered = true;
+			if (lastGame != currentGame) {
+				getMoreOfGame(currentGame);
+			}
+			globalFilter.active = true;
+			globalFilter.game = currentGame
+			globalFilter.activeOn = 'game';
+			lastGame = currentGame;
 		} else {
 			clearFilter()
 		}
@@ -312,6 +346,7 @@ $(document).ready(function() {
 	/* games */
 	$('#game_search').on('keyup', function() {
 		applyFilter($(this), $('#games'), 'data-game')
+
 	})
 
 	$('#game_search').on('click', function() {
@@ -412,8 +447,8 @@ $(document).ready(function() {
 
 	$(document).on('click', '.streamer', function() {
 		id = $(this).attr('data-name');
-		populateStream(id)
-		resetNav()
+		populateStream(id);
+		resetNav();
 	})
 
 	var populateStream = function(id) {
@@ -515,11 +550,28 @@ $(document).ready(function() {
 
 	/* todo: this needs to be made more robust */
 	
-	var streamView = function(stream, favorited) { //needs stream object
+	var determineIfFiltered = function(stream, filter) {
+		
+		var gameToFilter = stream['game'];
+		var nameToFilter = stream['channel']['name'];
+		
+		if (globalFilter.active) {
+			if (globalFilter.activeOn == 'game') {
+				return (globalFilter.game === gameToFilter) ? '' : 'hidden';
+			} else if (globalFilter.activeOn == 'streamer') {
+				return (globalFilter.streamer === nameToFilter) ? '' : 'hidden';
+			}
+		} else {
+			return 'hidden';
+		}
+		
+	}
+	
+	var streamView = function(stream, favorited, filter) { 
 
 		var favorited = (favorited) ? "favorited" : "";
-		var options = (filtered) ? "hidden" :  "";
-
+		var options = determineIfFiltered(stream, filter)
+		
 		var preview_height = 125
 		var aspect_ratio = 1.777 // twitch aspect ratio
 		var preview_image = templateReplace(stream['preview']['template'], preview_height, aspect_ratio)
@@ -531,7 +583,6 @@ $(document).ready(function() {
 		var game = '<div class="game">' + stream['game'] + '</div>'
 
 		var view = '<li class="streamer '+options+' '+favorited+'" data-name="' + stream['channel']['name'] + '" data-display="'+ stream['channel']['display_name'] + '" data-game="' + stream["game"] +'" class="stream">' + name + status + preview + game + '</li>';
-
 
 		$(view).imagesLoaded(function () {
 			$(view).removeClass('hidden')
@@ -612,10 +663,11 @@ $(document).ready(function() {
 	}
 
 	// loading bar and misc stuff
+	
 
 	var loadAllStreams = function(streams) {
 		$('#loading').fadeOut(200, function() {
-			showStreams(streams)
+			showStreams(streams, globalFilter)
 			$('.streamer').each(function(i, stream) {
 				$(stream).imagesLoaded(function() {
 					$(stream).removeClass('hidden')
@@ -631,16 +683,25 @@ $(document).ready(function() {
 	}
 
 	var removeLoadingIcon = function() {
-		$('#loading').remove()
+		$('#loading').remove();
+	};
 
-	}
-
-	var showStreams = function(streams) {
+	var showStreams = function(streams, filter) {
 		$.each(streams['streams'], function(i, stream) {
-			view = streamView(stream, false)
-			$('#streams').find('ul').append(view);
-		})
-	}
+			var streamerName = stream['channel']['name'];
+			var dataName = '[data-name="'+streamerName+'"]';
+			var streamFilter = $('.streamer').filter(dataName);
+			if (streamFilter.length === 0) {
+				view = streamView(stream, false, filter);
+				$('#streams').find('ul').append(view);
+				$('#streams').last().imagesLoaded(function() {
+					if (!$(stream).is(':visible')) {
+						$(stream).removeClass('hidden');
+					}
+				});
+			}
+		});
+	};
 
 	// end loading stuff
 
