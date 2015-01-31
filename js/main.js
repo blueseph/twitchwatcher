@@ -146,7 +146,7 @@ $(document).ready(function() {
 
 	var assignPlace = function(streamObject) { 
 		/* sorts incoming streams by viewercount */
-		var view = streamView(streamObject, true, filter)
+		var view = streamView(streamObject, true, globalFilter)
  		var currentViewers = streamObject['viewers']
 		var streamContainer = $('#streams').find('ul')
 		var thisStreamViewers
